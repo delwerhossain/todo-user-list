@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 
 const Home = () => {
   const [hiddenField, setHiddenField] = useState(false);
-  const [addList, setAddList] = useState("");
   const [listData, setListData] = useState([]);
+  const { register, handleSubmit, reset } = useForm();
 
-  const mainList = (e) => {
-    e.preventDefault();
-    const list = e.target.list.value;
-
+  const mainList = (data) => {
+    const list = data.list;
     fetch("http://localhost:5000/post", {
       method: "POST",
       headers: {
@@ -26,8 +25,9 @@ const Home = () => {
       })
       .then((data) => {
         console.log(data);
-        if (data) {
-          setAddList(list);
+        if (data.acknowledged) {
+          reset();
+          listGet();
           Swal.fire({
             position: "top-end",
             icon: "success",
@@ -42,19 +42,17 @@ const Home = () => {
       });
   };
 
-  useEffect(() => {
-    fetch("http://localhost:5000/get")
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          throw new Error("Request failed with status: " + res.status);
-        }
-      })
-      .then((data) => setListData(data))
-      .catch((err) => {
-        console.log(err);
+  const listGet = () => {
+    fetch("http://localhost:5000/list")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setListData(data.reverse());
       });
+  };
+
+  useEffect(() => {
+    listGet();
   }, []);
 
   return (
@@ -62,7 +60,7 @@ const Home = () => {
       <h1 className="p-4 text-4xl my-3 font-bold border rounded-lg">
         Add Your todo list
       </h1>
-      <section className="">
+      <section>
         <button
           onClick={() => setHiddenField(!hiddenField)}
           className={`btn mb-6 ${hiddenField ? "btn-warning" : ""}`}
@@ -70,13 +68,13 @@ const Home = () => {
           {!hiddenField ? "Add Todo List" : "Hidden List"}
         </button>
         <form
-          onSubmit={mainList}
+          onSubmit={handleSubmit(mainList)}
           className={`flex justify-center items-center gap-4 mx-2 ${
-            hiddenField ? "hidden" : ""
+            hiddenField ? "" : "hidden"
           }`}
         >
           <input
-            name="list"
+            {...register("list")}
             type="text"
             placeholder="Type here"
             className="input input-bordered input-primary w-full max-w-xs"
@@ -86,14 +84,19 @@ const Home = () => {
           </button>
         </form>
         {/* preview */}
-        <div
-          className={`border rounded-xl my-4 py-4 w-1/2 mx-auto ${
-            !addList ? "hidden" : ""
-          }`}
-        >
+        <div>
           <ol>
             {listData.map((item, index) => (
-              <li key={index}>{item}</li>
+              <div
+                className=" relative flex justify-center items-center border rounded-xl my-4 py-4 w-1/2 mx-auto"
+                key={index}
+              >
+                <li> {item.item}</li>
+                <div className="absolute right-2 flex gap-2 ">
+                  <button className="btn btn-warning btn-sm">edit</button>
+                  <button className="btn btn-error btn-sm">delete</button>
+                </div>
+              </div>
             ))}
           </ol>
         </div>

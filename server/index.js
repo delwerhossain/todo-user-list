@@ -40,13 +40,12 @@ async function run() {
       const result = await userListCollection.find().toArray();
       res.send(result);
     });
-    app.post("/post", async (req, res) => {
-      const listData = req.body.list;
-      console.log(listData);
-      const result = await userListCollection.insertOne(listData);
-      res.send(result);
-    });
-
+app.post("/post", async (req, res) => {
+  const listData = req.body.list;
+  console.log(listData);
+  const result = await userListCollection.insertOne({ item: listData }); // Wrap the data in an object
+  res.send(result);
+});
     // ends
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
