@@ -14,7 +14,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion, ObjectId, ClientSession } = require("mongodb");
+const {
+  MongoClient,
+  ServerApiVersion,
+  ObjectId,
+  ClientSession,
+} = require("mongodb");
 const uri = `mongodb+srv://${process.env.db_user}:${process.env.db_pass}@simple-del.4ijtj0g.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -42,13 +47,20 @@ async function run() {
     });
     app.post("/post", async (req, res) => {
       const listData = req.body.list;
-      console.log(listData);
       const result = await userListCollection.insertOne({ item: listData }); // Wrap the data in an object
+      res.send(result);
+    });
+    app.put("/edit", async (req, res) => {
+      const body = req.body.list;
+      const id = req.query.id;
+      const result = await userListCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { item: body } }
+      );
       res.send(result);
     });
     app.delete("/delete", async (req, res) => {
       const id = req.query.id;
-      console.log(id);
       const result = await userListCollection.deleteOne({
         _id: new ObjectId(id),
       });

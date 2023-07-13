@@ -70,7 +70,6 @@ const Home = () => {
           .then((res) => res.json())
           .then((data) => {
             if (data.deletedCount > 0) {
-              //  console.log(data);
               listGet();
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
             }
@@ -79,6 +78,45 @@ const Home = () => {
     });
   };
 
+  const editList = async (id, data) => {
+    const { value: text } = await Swal.fire({
+      input: "textarea",
+      inputLabel: "Message",
+      inputValue: data,
+      inputPlaceholder: "Type your message here...",
+      inputAttributes: {
+        "aria-label": "Type your message here",
+      },
+      showCancelButton: true,
+    });
+
+    if (text) {
+      fetch(`http://localhost:5000/edit?id=${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ list: text }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Request failed with status: " + response.status);
+          }
+        })
+        .then((data) => {
+          if (data.modifiedCount > 0) {
+            reset();
+            listGet();
+            Swal.fire(text);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
   return (
     <div className="text-center">
       <h1 className="p-4 text-4xl my-3 font-bold border rounded-lg">
@@ -117,7 +155,12 @@ const Home = () => {
               >
                 <li> {item.item}</li>
                 <div className="absolute right-2 flex gap-2 ">
-                  <button className="btn btn-warning btn-sm">edit</button>
+                  <button
+                    onClick={() => editList(item._id,item.item)}
+                    className="btn btn-warning btn-sm"
+                  >
+                    edit
+                  </button>
                   <button
                     onClick={() => deleteList(item._id)}
                     className="btn btn-error btn-sm"
