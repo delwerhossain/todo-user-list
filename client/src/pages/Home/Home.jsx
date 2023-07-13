@@ -24,7 +24,6 @@ const Home = () => {
         }
       })
       .then((data) => {
-        console.log(data);
         if (data.acknowledged) {
           reset();
           listGet();
@@ -46,7 +45,6 @@ const Home = () => {
     fetch("http://localhost:5000/list")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setListData(data.reverse());
       });
   };
@@ -54,6 +52,32 @@ const Home = () => {
   useEffect(() => {
     listGet();
   }, []);
+
+  const deleteList = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`http://localhost:5000/delete?id=${id}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.deletedCount > 0) {
+              //  console.log(data);
+              listGet();
+              Swal.fire("Deleted!", "Your file has been deleted.", "success");
+            }
+          });
+      }
+    });
+  };
 
   return (
     <div className="text-center">
@@ -84,17 +108,22 @@ const Home = () => {
           </button>
         </form>
         {/* preview */}
-        <div>
+        <div className={`${!hiddenField && "hidden"}`}>
           <ol>
             {listData.map((item, index) => (
               <div
-                className=" relative flex justify-center items-center border rounded-xl my-4 py-4 w-1/2 mx-auto"
+                className=" relative flex justify-center items-center border border-slate-300 rounded-xl my-4 py-4 w-1/2 mx-auto"
                 key={index}
               >
                 <li> {item.item}</li>
                 <div className="absolute right-2 flex gap-2 ">
                   <button className="btn btn-warning btn-sm">edit</button>
-                  <button className="btn btn-error btn-sm">delete</button>
+                  <button
+                    onClick={() => deleteList(item._id)}
+                    className="btn btn-error btn-sm"
+                  >
+                    delete
+                  </button>
                 </div>
               </div>
             ))}
