@@ -9,7 +9,7 @@ const Home = () => {
 
   const mainList = (data) => {
     const list = data.list;
-    fetch("http://localhost:5000/post", {
+    fetch("https://todo-user-list.vercel.app/post", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ const Home = () => {
   };
 
   const listGet = () => {
-    fetch("http://localhost:5000/list")
+    fetch("https://todo-user-list.vercel.app/list")
       .then((res) => res.json())
       .then((data) => {
         setListData(data.reverse());
@@ -64,7 +64,7 @@ const Home = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        fetch(`http://localhost:5000/delete?id=${id}`, {
+        fetch(`https://todo-user-list.vercel.app/delete?id=${id}`, {
           method: "DELETE",
         })
           .then((res) => res.json())
@@ -91,7 +91,7 @@ const Home = () => {
     });
 
     if (text) {
-      fetch(`http://localhost:5000/edit?id=${id}`, {
+      fetch(`https://todo-user-list.vercel.app/edit?id=${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ const Home = () => {
                 <li> {item.item}</li>
                 <div className="absolute right-2 flex gap-2 ">
                   <button
-                    onClick={() => editList(item._id,item.item)}
+                    onClick={() => editList(item._id, item.item)}
                     className="btn btn-warning btn-sm"
                   >
                     edit
